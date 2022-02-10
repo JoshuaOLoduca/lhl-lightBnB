@@ -154,8 +154,8 @@ const getAllProperties = function(options, limit = 10) {
 
     switch (filterMethod) {
     case "like":
-      queryParams.push(`%${options[key].slice(1)}%`);
-      queryString += `LIKE $${queryParams.length}`;
+      queryParams.push(`%${options[key]}%`);
+      queryString += `ILIKE $${queryParams.length}`;
       break;
     case "exact":
       queryParams.push(options[key]);
