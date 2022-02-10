@@ -1,13 +1,7 @@
-const properties = require("./json/properties.json");
-const users = require("./json/users.json");
-const { Pool } = require("pg");
+const properties = require("../json/properties.json");
+const users = require("../json/users.json");
 
-const pool = new Pool({
-  user: "vagrant",
-  password: "123",
-  host: "localhost",
-  database: "lightbnb",
-});
+const db = require('./index')
 
 /// Users
 
@@ -22,7 +16,7 @@ const getUserWithEmail = function(email) {
   FROM users
   WHERE email = $1;`;
 
-  return pool
+  return db
     .query(queryString, [email])
     .then((res) => res.rows[0])
     .catch((err) => console.log(err));
@@ -40,7 +34,7 @@ const getUserWithId = function(id) {
   FROM users
   WHERE id = $1;`;
 
-  return pool
+  return db
     .query(queryString, [id])
     .then((res) => res.rows[0])
     .catch((err) => console.log(err));
@@ -70,7 +64,7 @@ const addUser = function(user) {
       // if user exists, throw error
       throw new Error("email in use");
     })
-    .then(() => pool.query(insertString, data))
+    .then(() => db.query(insertString, data))
     .then((res) => res.rows[0])
     .catch((err) => {
       throw new Error(err).message;
@@ -87,7 +81,7 @@ exports.addUser = addUser;
  */
 const getAllReservations = function(guest_id, limit = 10) {
   const query = `
-    SELECT *
+    SELECT p.*, avg(r.rating) as average_rating
     FROM properties p
       JOIN reservations r
         ON p.id = r.property_id
@@ -95,7 +89,7 @@ const getAllReservations = function(guest_id, limit = 10) {
     LIMIT $2;`;
   const values = [guest_id, limit];
 
-  return pool
+  return db
     .query(query, values)
     .then((result) => result.rows)
     .catch((err) => err.message);
@@ -181,7 +175,7 @@ const getAllProperties = function(options, limit = 10) {
   LIMIT $${queryParams.length};
   `;
 
-  return pool
+  return db
     .query(queryString, queryParams)
     .then((result) => result.rows)
     .catch((err) => err.message);
@@ -222,6 +216,6 @@ const addProperty = function(property) {
     RETURNING *;
     `;
 
-  return pool.query(insertString, colValues).then((res) => res.rows[0]);
+  return db.query(insertString, colValues).then((res) => res.rows[0]);
 };
 exports.addProperty = addProperty;
