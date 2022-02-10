@@ -108,6 +108,7 @@ exports.getAllReservations = getAllReservations;
  * @return {Promise<[{}]>}  A promise to the properties.
  */
 const getAllProperties = function(options, limit = 10) {
+  console.log(options);
   const queryParams = [];
   let queryString = `
   SELECT properties.*, avg(property_reviews.rating) as average_rating
@@ -127,7 +128,10 @@ const getAllProperties = function(options, limit = 10) {
     minimum_price_per_night: [true, "getHigher", "cost_per_night", "toCents"],
     maximum_price_per_night: [true, "getLower", "cost_per_night", "toCents"],
     minimum_rating: [false, "getHigher_aggregate"],
+    owner_id: [true, "exact", "owner_id"]
   };
+
+  if(options.owner_id) options.owner_id = parseInt(options.owner_id);
 
   for (const key of Object.keys(options)) {
     if (!options[key] || !getType[key][0]) continue;
@@ -152,6 +156,10 @@ const getAllProperties = function(options, limit = 10) {
     case "like":
       queryParams.push(`%${options[key].slice(1)}%`);
       queryString += `LIKE $${queryParams.length}`;
+      break;
+    case "exact":
+      queryParams.push(options[key]);
+      queryString += `= $${queryParams.length}`;
       break;
     case "getHigher":
       queryString += `>= $${queryParams.length}`;
