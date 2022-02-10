@@ -112,17 +112,84 @@ exports.getAllReservations = getAllReservations;
  * @return {Promise<[{}]>}  A promise to the properties.
  */
 const getAllProperties = function (options, limit = 10) {
-  if (Object.keys(options).length === 0) {
-    options = {
-      query: `
-      SELECT *
-      FROM properties
-      LIMIT $1;`,
-      values: [limit]
+  const queryParams = [];
+  let queryString = `
+  SELECT properties.*, avg(property_reviews.rating) as average_rating
+  FROM properties
+  JOIN property_reviews ON properties.id = property_id
+  `;
+
+  /*  [
+        Proccess with WHERE,
+        how to insert into sql,
+        the name of db table to compare to,
+        type of conversion to do (if any)
+      ]
+  */
+  const getType = {
+    city:
+      [true, 'like', 'city'],
+    minimum_price_per_night:
+      [true, 'getHigher', 'cost_per_night', 'toCents'],
+    maximum_price_per_night:
+      [true, 'getLower', 'cost_per_night', 'toCents'],
+    minimum_rating:
+      [false, 'getHigher_aggregate'],
+  };
+
+  for (const key of Object.keys(options)) {
+    if (!options[key] || !getType[key][0]) continue;
+
+    if (!queryString.includes('WHERE')) queryString += `WHERE `;
+    else queryString += ` AND `
+
+    const filterMethod = getType[key][1]
+    const tableKey = getType[key][2];
+    const convertMethod = getType[key][3]
+
+    queryString += `${tableKey} `;
+
+    switch (convertMethod) {
+      case 'toCents':
+        options[key] = options[key] * 100;
+        queryParams.push(options[key]);
+        break;
+    }
+
+    switch (filterMethod) {
+      case 'like':
+        queryParams.push(`%${options[key].slice(1)}%`);
+        queryString += `LIKE $${queryParams.length}`;
+        break;
+      case 'getHigher':
+        queryString += `>= $${queryParams.length}`;
+        break;
+      case 'getLower':
+        queryString += `<= $${queryParams.length}`;
+        break;
     }
   }
+
+  queryString += `
+  GROUP BY properties.id`;
+
+  if (options.minimum_rating) {
+    queryParams.push(parseInt(options.minimum_rating));
+    queryString += `
+    HAVING avg(property_reviews.rating) >= $${queryParams.length}
+    `;
+  }
+
+  queryParams.push(limit);
+  queryString += `
+  ORDER BY cost_per_night
+  LIMIT $${queryParams.length};
+  `;
+
+  console.log(queryString, queryParams);
+  console.log(options);
   
-  return pool.query(options.query, options.values)
+  return pool.query(queryString, queryParams)
     .then((result) => result.rows)
     .catch((err) => err.message);
 }
