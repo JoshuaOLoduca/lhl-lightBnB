@@ -54,7 +54,9 @@ exports.getUserWithId = getUserWithId;
 const addUser =  function(user) {
   const insertString = `
   INSERT INTO users (name, email, password)
-  VALUES ($1,$2,$3);`;
+  VALUES ($1,$2,$3)
+  RETURNING *;
+  `;
 
   const email = user.email;
 
@@ -72,7 +74,7 @@ const addUser =  function(user) {
       throw new Error('email in use');
     })
     .then(() => pool.query(insertString, data))
-    .then(() => getUserWithEmail(email))
+    .then(res => res.rows[0])
     .catch(err => {
       throw new Error(err).message
     });
