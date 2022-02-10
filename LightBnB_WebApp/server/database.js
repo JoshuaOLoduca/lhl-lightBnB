@@ -87,8 +87,18 @@ exports.addUser = addUser;
  * @param {string} guest_id The id of the user.
  * @return {Promise<[{}]>} A promise to the reservations.
  */
-const getAllReservations = function(guest_id, limit = 10) {
-  return getAllProperties(null, 2);
+const getAllReservations = function (guest_id, limit = 10) {
+  const options = {
+    query: `
+      SELECT *
+      FROM properties p
+        JOIN reservations r
+          ON p.id = r.property_id
+      WHERE r.guest_id = $1
+      LIMIT $2;`,
+    values: [guest_id, limit]
+  }
+  return getAllProperties(options, limit);
 }
 exports.getAllReservations = getAllReservations;
 
@@ -100,12 +110,18 @@ exports.getAllReservations = getAllReservations;
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
  */
-const getAllProperties = function(options, limit = 10) {
-  return pool.query(`
-    SELECT *
-    FROM properties
-    LIMIT $1;`,
-      [ limit ])
+const getAllProperties = function (options, limit = 10) {
+  if (Object.keys(options).length === 0) {
+    options = {
+      query: `
+      SELECT *
+      FROM properties
+      LIMIT $1;`,
+      values: [limit]
+    }
+  }
+  
+  return pool.query(options.query, options.values)
     .then((result) => result.rows)
     .catch((err) => err.message);
 }
