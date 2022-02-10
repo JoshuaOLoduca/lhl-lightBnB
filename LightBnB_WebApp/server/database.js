@@ -66,12 +66,16 @@ const addUser =  function(user) {
 
   return getUserWithEmail(email)
     .then(user => {
+      // if no user exists, create it
       if (!user) return;
-      throw 'email in use';
+      // if user exists, throw error
+      throw new Error('email in use');
     })
     .then(() => pool.query(insertString, data))
     .then(() => getUserWithEmail(email))
-    .catch(err => console.log(err));
+    .catch(err => {
+      throw new Error(err).message
+    });
   
 }
 exports.addUser = addUser;
