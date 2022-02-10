@@ -20,7 +20,6 @@ module.exports = {
         params,
         duration,
         rows: res.rowCount,
-        res: res.rows
       });
 
       return res;

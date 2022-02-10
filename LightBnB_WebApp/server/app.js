@@ -1,5 +1,5 @@
 const database = require('./db/database');
-const apiRoutes = require('./routes/api/apiRoutes');
+const apiRoutes = require('./routes/api/index');
 const userRoutes = require('./routes/user/index');
 
 const path = require('path');
