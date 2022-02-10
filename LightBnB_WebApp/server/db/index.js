@@ -30,7 +30,7 @@ module.exports = {
           text,
           params,
           duration,
-          rows: res.rowCount 
+          err
       });
       throw new Error(err);
     })

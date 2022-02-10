@@ -36,8 +36,8 @@ const getUserWithId = function(id) {
 
   return db
     .query(queryString, [id])
-    .then((res) => res.rows[0])
-    .catch((err) => console.log(err));
+    .then(res => res.rows[0])
+    .catch(err => console.log(err));
 };
 exports.getUserWithId = getUserWithId;
 
@@ -81,21 +81,21 @@ exports.addUser = addUser;
  */
 const getAllReservations = function(guest_id, limit = 10) {
   const query = `
-    SELECT p.*, avg(rat.rating) as average_rating
+    SELECT p.*, res.*, avg(rat.rating) as average_rating
     FROM properties p
       JOIN reservations res
         ON p.id = res.property_id
       JOIN property_reviews rat
         ON p.id = rat.property_id
     WHERE res.guest_id = $1
-    GROUP BY p.id
+    GROUP BY p.id, res.id
     LIMIT $2;`;
   const values = [guest_id, limit];
 
   return db
     .query(query, values)
     .then((result) => result.rows)
-    .catch((err) => err.message);
+    .catch((err) => console.log(err));
 };
 exports.getAllReservations = getAllReservations;
 
