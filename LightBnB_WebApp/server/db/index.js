@@ -19,7 +19,8 @@ module.exports = {
         text,
         params,
         duration,
-        rows: res.rowCount 
+        rows: res.rowCount,
+        res: res.rows
       });
 
       return res;
