@@ -24,5 +24,15 @@ module.exports = {
 
       return res;
     })
+    .catch(err => {
+      const duration = Date.now() - start + ' ms';
+      console.log(err, {
+          text,
+          params,
+          duration,
+          rows: res.rowCount 
+      });
+      throw new Error(err);
+    })
   },
 }
