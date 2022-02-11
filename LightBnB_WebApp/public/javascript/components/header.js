@@ -67,7 +67,8 @@ $(() => {
     propertyListings.clearListings();
     getAllListings()
       .then(function(json) {
-        propertyListings.addProperties(json.properties);
+        console.log('header', currentUser)
+        propertyListings.addProperties(json.properties, false, currentUser);
         views_manager.show('listings');
     });
   });
@@ -85,6 +86,10 @@ $(() => {
   $("header").on('click', '.logout_button', () => {
     logOut().then(() => {
       header.update(null);
+      getAllListings()
+        .then(res =>{
+          propertyListings.addProperties(res.properties, false);
+        });
     });
   });
 

@@ -33,6 +33,11 @@ $(() => {
         }
         console.log(json.user);
         header.update(json.user);
+
+        getAllListings()
+        .then(res =>{
+          propertyListings.addProperties(res.properties, false, json.user);
+        });
         views_manager.show('listings');
       });
   });

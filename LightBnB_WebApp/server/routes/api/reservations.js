@@ -12,4 +12,8 @@ module.exports = function(router, database) {
       res.send(e)
     });
   });
+
+  router.post('/reservations', (req, res) => {
+
+  });
 }
