@@ -14,6 +14,8 @@ module.exports = function(router, database) {
   });
 
   router.post('/reservations', (req, res) => {
-    console.log(req.body);
+    const {start, end, property_id, guest_id} = req.body
+    database.makeReservation(start, end, property_id, guest_id)
+    .then(result => res.send(result.rows[0]));
   });
 }

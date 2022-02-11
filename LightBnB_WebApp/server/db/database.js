@@ -99,6 +99,32 @@ const getAllReservations = function(guest_id, limit = 10) {
 };
 exports.getAllReservations = getAllReservations;
 
+/**
+ * Make reservations for a single user.
+ * @param {string} startDate The start date of reservation.
+ * @param {string} endDate The end date of reservation.
+ * @param {string} propertyId The id of the property.
+ * @param {string} guestId The id of the gues.
+ */
+const makeReservation = function(startDate, endDate, propertyId, guestId) {
+  const query = `
+    INSERT INTO reservations (start_date, end_date, property_id, guest_id)
+    VALUES ($1, $2, $3, $4)
+    RETURNING *`;
+  const values = [startDate, endDate, propertyId, guestId];
+
+  const startD = new Date(startDate);
+  const endD = new Date(endDate);
+
+  if (endD < startD) throw new Error('End date is before Start Date');
+
+  return db
+    .query(query, values)
+    .then(result => result)
+    .catch((err) => console.log(err));
+};
+exports.makeReservation = makeReservation;
+
 /// Properties
 
 /**
