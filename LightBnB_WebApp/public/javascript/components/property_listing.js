@@ -46,19 +46,17 @@ $(() => {
       event.preventDefault();
       let data = $(this).serialize();
       data += `&property_id=${property.id}&guest_id=${user.id}`;
-      console.log(data);
   
       makeReservation(data)
-      .then(function( json ) {
-        alert('Reservation Made')
-        propertyListings.clearListings();
-        getAllReservations()
-          .then(function(json) {
-            propertyListings.addProperties(json.reservations, true);
-            views_manager.show('listings');
-          })
-          .catch(error => console.error(error));
-      });
+        .then(() => {
+          propertyListings.clearListings();
+          getAllReservations()
+            .then(json => {
+              propertyListings.addProperties(json.reservations, true);
+              views_manager.show('listings');
+            })
+            .catch(error => console.error(error));
+        });
     });
 
     return $result;

@@ -49,7 +49,10 @@ function makeReservation(data) {
   return $.ajax({
     method: "POST",
     url: "/api/reservations",
-    data
+    data,
+    error: function (xhr) {
+      alert(xhr.responseText);
+    }
   });
 }
 

@@ -116,7 +116,9 @@ const makeReservation = function(startDate, endDate, propertyId, guestId) {
   const startD = new Date(startDate);
   const endD = new Date(endDate);
 
-  if (endD < startD) throw new Error('End date is before Start Date');
+  if (endD < startD ||endD === startD) {
+    return new Promise((resolve, reject) => reject('End date is before Start Date'))
+  };
 
   return db
     .query(query, values)
