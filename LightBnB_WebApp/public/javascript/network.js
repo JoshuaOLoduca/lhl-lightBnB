@@ -45,6 +45,14 @@ function getAllReservations() {
   });
 }
 
+function makeReservation(data) {
+  return $.ajax({
+    method: "POST",
+    url: "/api/reservations",
+    data
+  });
+}
+
 const submitProperty = function(data) {
   return $.ajax({
     method: "POST",

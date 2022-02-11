@@ -2,7 +2,7 @@ $(() => {
   window.propertyListing = {};
   
   function createListing(property, isReservation, user) {
-    return `
+    const $result = $(`
     <article class="property-listing">
         <section class="property-listing__preview-image">
           <img src="${property.thumbnail_photo_url}" alt="house">
@@ -19,17 +19,17 @@ $(() => {
             : ``}
           <footer class="property-listing__footer">
           ${user ? `
-          <form style="display: flex; flex-direction: column;" method='POST' action>
+          <form style="display: flex; flex-direction: column;">
           <div style="display: flex; justify-content: space-between;">
             <div style="display: flex; flex-direction: column; width: 47%;">
               <label>start date</label>
-              <input type="date" id="start" name="res-start"
-              value="2022-02-10" min="2022-02-20">
+              <input type="date" id="start" name="start"
+              value="2022-02-20" min="2022-02-20">
             </div>
             <div style="display: flex; flex-direction: column; width: 47%;">
               <label>end date</label>
-              <input type="date" id="end" name="res-end"
-              value="2022-02-10" min="2022-02-21">
+              <input type="date" id="end" name="end"
+              value="2022-02-21" min="2022-02-21">
             </div>
           </div>
             <button style="margin: 0 auto; display: block;">make reservation</button>
@@ -40,9 +40,23 @@ $(() => {
           </footer>
         </section>
       </article>
-    `
+    `)
+
+    $result.find( "form" ).on('submit', function(event) {
+      event.preventDefault();
+      let data = $(this).serialize();
+      data += `&property_id=${property.id}&guest_id=${user.id}`;
+      console.log(data);
+  
+      makeReservation(data).then(function( json ) {
+        console.log(json)
+      });
+    });
+
+    return $result;
   }
 
   window.propertyListing.createListing = createListing;
+
 
 });
